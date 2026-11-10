@@ -1,0 +1,51 @@
+import csv
+import math
+import matplotlib.pyplot as plt
+
+# Read data
+x = []
+y = []
+
+with open("study_hours_lab10.csv") as file:
+    reader = csv.reader(file)
+    next(reader)
+
+    for row in reader:
+        x.append(float(row[0]))
+        y.append(float(row[1]))
+
+
+# Locally Weighted Regression
+def predict(x0, tau=1.0):
+
+    weights = []
+
+    for i in range(len(x)):
+        w = math.exp(-((x[i] - x0) ** 2) / (2 * tau ** 2))
+        weights.append(w)
+
+    # Calculate weighted mean
+    numerator = sum(weights[i] * y[i] for i in range(len(x)))
+    denominator = sum(weights)
+
+    return numerator / denominator
+
+
+# Generate predicted values
+x_pred = []
+y_pred = []
+
+for value in x:
+    x_pred.append(value)
+    y_pred.append(predict(value))
+
+
+# Draw graph
+plt.scatter(x, y, label="Actual Data")
+plt.plot(x_pred, y_pred, label="LWR Curve")
+
+plt.xlabel("Study Hours")
+plt.ylabel("Exam Score")
+plt.title("Locally Weighted Regression")
+plt.legend()
+plt.show()
